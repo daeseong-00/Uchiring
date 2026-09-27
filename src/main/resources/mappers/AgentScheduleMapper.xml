@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="uchiring.mapper.AgentScheduleMapper">
+
+<insert id="insertAgentSchedule" parameterType="hashmap">
+    INSERT INTO agent_schedules (schedule_id, agent_id, start_date, end_date, is_available)
+    VALUES (
+        agent_schedules_seq.NEXTVAL, 
+        #{agentId}, 
+        TO_TIMESTAMP(#{startDate}, 'YYYY-MM-DD"T"HH24:MI'), 
+        TO_TIMESTAMP(#{endDate}, 'YYYY-MM-DD"T"HH24:MI'), 
+        'Y'
+    )
+</insert>
+
+<select id="selectSchedulesByAgentId" parameterType="int" resultType="uchiring.domain.AgentScheduleDTO">
+    SELECT schedule_id, agent_id, start_date, end_date, is_available 
+    FROM agent_schedules 
+    WHERE agent_id = #{agentId} 
+    ORDER BY start_date DESC
+</select>
+
+<delete id="deleteAgentSchedule" parameterType="int">
+    DELETE FROM agent_schedules WHERE schedule_id = #{scheduleId}
+</delete>
+
+<update id="updateScheduleStatusByDate" parameterType="hashmap">
+    UPDATE agent_schedules 
+    SET is_available = 'N' 
+    WHERE agent_id = #{agentId}
+      AND start_date &lt;= TO_TIMESTAMP(#{reservationDate}, 'YYYY-MM-DD HH24:MI:SS')
+      AND end_date &gt;= TO_TIMESTAMP(#{reservationDate}, 'YYYY-MM-DD HH24:MI:SS')
+</update>
+</mapper>
